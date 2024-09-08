@@ -237,7 +237,7 @@ export class Slime extends Actor {
         this.attacking = false;
 
         // Attack the target Plant
-        // TODO
+        this.targetPlant.takeDamage();
 
         // Attack again!
         this.actions

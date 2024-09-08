@@ -104,6 +104,10 @@ export class GameScene extends Scene {
         this.spawners = Configs.SpawnerPositions.map((pos) => new Spawner(pos, this.plants));
         this.spawners.forEach(this.add.bind(this));
         this.spawners.forEach((spawner) => spawner.startSpawning());
+
+        // Listen to plant events
+        this.on("plant-dies", this.onPlantDies.bind(this));
+        this.on("plant-grown", this.onPlantGrown.bind(this));
     }
 
     private fillMap() {
@@ -296,9 +300,28 @@ export class GameScene extends Scene {
             .map(() => {
                 const tile = this.availablePlantingZone.pop();
                 tile.clearGraphics();
-                tile.addGraphic(this.spriteSheet.getSprite(10, 3));
+                tile.addGraphic(this.spriteSheet.getSprite(1, 1));
                 return new Plant(tile);
             });
         this.plants.forEach(this.add.bind(this));
+    }
+
+    private onPlantDies(plant: Plant) {
+        this.gameSceneUI.addPlantDead();
+        this.checkEndCondition();
+    }
+
+    private onPlantGrown(plant: Plant) {
+        this.gameSceneUI.addPlantGrown();
+        this.checkEndCondition();
+    }
+
+    private checkEndCondition() {
+        const grown = this.gameSceneUI.getPlantGrown();
+        const dead = this.gameSceneUI.getPlantDead();
+        const tot = grown + dead;
+        if (tot === Configs.PlantingZoneInitialPlantCount) {
+            window["GameCompleted"](grown, dead);
+        }
     }
 }

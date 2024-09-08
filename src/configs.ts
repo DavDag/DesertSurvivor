@@ -5,19 +5,18 @@ export const Configs = {
 
     WindowWidth: 800,
     WindowHeight: 600,
-    //BackgroundColor: Color.fromHex("#D5A05D"),
     BackgroundColor: Color.Black,
 
     StartingCameraZoom: 2,
     CameraMinZoom: 0.75,
     CameraMaxZoom: 4,
 
-    BackgroundZIndex: -3,
-    IsleZIndex: -2,
-    PlantZIndex: -1,
+    BackgroundZIndex: -300,
+    IsleZIndex: -200,
+    PlantZIndex: -100,
     SlimeZIndex: 0,
-    PlayerZIndex: 1,
-    SpawnerZIndex: 2,
+    PlayerZIndex: 100,
+    SpawnerZIndex: 200,
 
     MapWidth: 150,
     MapHeight: 150,
@@ -35,12 +34,15 @@ export const Configs = {
     SlimeAnimFrameDuration: 150,
     SlimeAttackAnimFrameDuration: 250,
     SlimeSpeed: 25,
-    SlimeAttackDelay: 2000,
+    SlimeAttackDelay: 1000,
 
     IsleDebrisChance: 0.05,
 
     PlantingZoneDebrisChance: 0.05,
-    PlantingZoneInitialPlantCount: 5,
+    PlantingZoneInitialPlantCount: 10,
+    PlantHealth: 3,
+    PlantGrowthTryInterval: 1000,
+    PlantGrowthChance: 0.01,
 
     SpawnerPositions: [
         new Vector(70, 70),
@@ -50,5 +52,5 @@ export const Configs = {
     ],
     SpawnerSpawnSize: 100,
     SpawnerSpawnMinDelay: 1000,
-    SpawnerSpawnMaxDelay: 10000,
+    SpawnerSpawnMaxDelay: 5000,
 };

@@ -1,7 +1,8 @@
-import {Color, DisplayMode, Engine, Input, Keys, Loader} from "excalibur";
+import {Color, DisplayMode, Engine, Input, Keys, Loader, Scene} from "excalibur";
 import {Resources} from "./assets/resources";
 import {GameScene} from "./scenes/gamescene";
 import {Configs} from "./configs";
+import {EndScene} from "./scenes/endscene";
 
 // Resource loader
 const loader = new Loader();
@@ -20,14 +21,15 @@ const game = new Engine({
 });
 
 // Scenes
+game.add("end", new EndScene());
 game.add("game", new GameScene());
 
 // Listen to global events
 game.input.keyboard.on('down', (evt: Input.KeyEvent) => {
-    // Escape to pause the game
-    if (evt.key === Keys.Escape) {
-        window["PauseGame"]();
-    }
+    // // Escape to pause the game
+    // if (evt.key === Keys.Escape) {
+    //     window["PauseGame"]();
+    // }
 
     // P to toggle debug mode
     if (evt.key === Keys.P) {
@@ -60,6 +62,17 @@ game.input.pointers.primary.on('move', (evt: Input.PointerEvent) => {
 game.start(loader).then(() => window["StartGame"]());
 
 window["StartGame"] = () => {
+    void game.goToScene("game");
+};
+
+window["GameCompleted"] = (grown: number, dead: number) => {
+    const endScene = game.scenes["end"] as EndScene;
+    endScene.setGrownPlants(grown);
+    endScene.setDeadPlants(dead);
+    void game.goToScene("end");
+};
+
+window["RestartGame"] = () => {
     void game.goToScene("game");
 };
 

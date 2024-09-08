@@ -1,18 +1,21 @@
 import {
     Actor,
     Animation,
-    AnimationStrategy, Collider, CollisionContact,
+    AnimationStrategy,
+    Collider,
+    CollisionContact,
     CollisionType,
     Color,
     Engine,
     Keys,
-    range, Shape, Side,
-    SpriteSheet, Timer,
+    range,
+    Side,
+    SpriteSheet,
+    Timer,
     Vector
 } from "excalibur";
 import {Configs} from "../configs";
 import {Resources} from "../assets/resources";
-import {rnd} from "../random";
 
 export class Player extends Actor {
 
@@ -174,7 +177,7 @@ export class Player extends Actor {
             height: 20,
             collisionType: CollisionType.PreventCollision,
         });
-        this.attackActors["up"]= new Actor({
+        this.attackActors["up"] = new Actor({
             name: "attack",
             pos: new Vector(0, -10),
             width: 20,
@@ -199,6 +202,7 @@ export class Player extends Actor {
             repeats: true,
         });
         this.scene.add(this.stepSoundTimer);
+        this.stepSoundTimer.start();
 
         // Set player z-index
         this.z = Configs.PlayerZIndex;

@@ -45,6 +45,12 @@ export const Resources = {
             unit: FontUnit.Px,
             textAlign: TextAlign.Left,
         }),
+        NormalC: new Font({
+            family: 'Arial',
+            size: 24,
+            unit: FontUnit.Px,
+            textAlign: TextAlign.Center,
+        }),
         NormalR: new Font({
             family: 'Arial',
             size: 24,

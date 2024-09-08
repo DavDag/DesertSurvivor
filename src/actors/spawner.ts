@@ -3,7 +3,6 @@ import {Configs} from "../configs";
 import {Plant} from "./plant";
 import {Slime} from "./slime";
 import {rnd} from "../random";
-import {Resources} from "../assets/resources";
 
 export class Spawner extends Actor {
 
