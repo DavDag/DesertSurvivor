@@ -7,18 +7,19 @@ import {
     Engine,
     Keys,
     range, Shape, Side,
-    SpriteSheet,
+    SpriteSheet, Timer,
     Vector
 } from "excalibur";
 import {Configs} from "../configs";
 import {Resources} from "../assets/resources";
+import {rnd} from "../random";
 
 export class Player extends Actor {
 
     private attacking = false;
     private direction = "down";
-
     private attackActors: { [key: string]: Actor } = {};
+    private stepSoundTimer: Timer;
 
     constructor() {
         super({
@@ -36,7 +37,7 @@ export class Player extends Actor {
 
         // Set player sprite
         const spriteSheet = SpriteSheet.fromImageSource({
-            image: Resources.image.player,
+            image: Resources.image.Player,
             grid: {
                 rows: 10,
                 columns: 6,
@@ -189,6 +190,16 @@ export class Player extends Actor {
         });
         Object.values(this.attackActors).forEach(this.addChild.bind(this));
 
+        // Set step sound timer
+        this.stepSoundTimer = new Timer({
+            interval: Configs.PlayerStepSoundDelay,
+            fcn: () => {
+                void Resources.music.FootStep1.play(Configs.Volume);
+            },
+            repeats: true,
+        });
+        this.scene.add(this.stepSoundTimer);
+
         // Set player z-index
         this.z = Configs.PlayerZIndex;
 
@@ -205,6 +216,7 @@ export class Player extends Actor {
         // Move player
         this.vel = Vector.Zero;
         if (!this.attacking) {
+            // Set velocity based on input
             if (engine.input.keyboard.isHeld(Keys.W) || engine.input.keyboard.isHeld(Keys.Up)) {
                 this.vel.y -= 1;
                 this.direction = "up";
@@ -221,8 +233,19 @@ export class Player extends Actor {
                 this.vel.x += 1;
                 this.direction = "right";
             }
+
+            // Normalize velocity (if moving) and scale by speed
             if (this.vel.x !== 0 || this.vel.y !== 0) {
                 this.vel = this.vel.normalize().scale(Configs.PlayerSpeed);
+                if (!this.stepSoundTimer.isRunning) {
+                    console.debug('StepSoundTimer resumed');
+                    this.stepSoundTimer.resume();
+                }
+            } else {
+                if (this.stepSoundTimer.isRunning) {
+                    console.debug('StepSoundTimer paused');
+                    this.stepSoundTimer.pause();
+                }
             }
         }
 
@@ -231,6 +254,9 @@ export class Player extends Actor {
             this.attacking = true;
             this.attackActors[this.direction].body.collisionType = CollisionType.Passive;
             (this.graphics.getGraphic(`attack.${this.direction}`) as Animation).reset();
+            void Resources.music.SwordSwing.play(Configs.Volume);
+            console.debug('StepSoundTimer paused');
+            this.stepSoundTimer.pause();
         }
 
         // Set animation
@@ -249,5 +275,7 @@ export class Player extends Actor {
     private onAttackAnimationEnd() {
         this.attacking = false;
         this.attackActors[this.direction].body.collisionType = CollisionType.PreventCollision;
+        console.debug('StepSoundTimer resumed');
+        this.stepSoundTimer.resume();
     }
 }

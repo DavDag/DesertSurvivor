@@ -19,6 +19,7 @@ export class Slime extends Actor {
 
     private direction = "down";
     private attacking = false;
+    private dying = false;
 
     constructor(private targetPlant: Plant) {
         super({
@@ -36,7 +37,7 @@ export class Slime extends Actor {
 
         // Set slime sprite
         const spriteSheet = SpriteSheet.fromImageSource({
-            image: Resources.image.slime,
+            image: Resources.image.Slime,
             grid: {
                 rows: 13,
                 columns: 7,
@@ -141,6 +142,13 @@ export class Slime extends Actor {
             strategy: AnimationStrategy.Freeze
         });
         animAttackLeft.events.on("end", this.onAttackAnimationEnd.bind(this));
+        const animDies = Animation.fromSpriteSheet(
+            spriteSheet,
+            range(84, 88),
+            Configs.SlimeAnimFrameDuration,
+            AnimationStrategy.End
+        );
+        animDies.events.on("end", this.onDieAnimationEnd.bind(this));
         this.graphics.add("idle.down", animIdleDown);
         this.graphics.add("idle.right", animIdleRight);
         this.graphics.add("idle.up", animIdleUp);
@@ -153,6 +161,7 @@ export class Slime extends Actor {
         this.graphics.add("attack.right", animAttackRight);
         this.graphics.add("attack.up", animAttackUp);
         this.graphics.add("attack.left", animAttackLeft);
+        this.graphics.add("dies", animDies);
         this.graphics.use("idle.left");
 
         // Update collision box
@@ -161,7 +170,7 @@ export class Slime extends Actor {
         // Set slime z-index
         this.z = Configs.SlimeZIndex;
 
-        // Make slim move towards the target plant
+        // Make slim move towards the target Plant
         this.actions
             .moveTo(this.targetPlant.pos.sub((this.parent as Spawner).pos), Configs.SlimeSpeed)
             .callMethod(this.startAttackAnimation.bind(this));
@@ -174,9 +183,7 @@ export class Slime extends Actor {
     }
 
     public onPreUpdate(engine: Engine, delta: number) {
-        super.onPreUpdate(engine, delta);
-
-        // Move the slime
+        if (this.dying) return;
 
         // Update the slime animation
         if (!this.attacking) {
@@ -191,32 +198,54 @@ export class Slime extends Actor {
     }
 
     onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
-        super.onCollisionStart(self, other, side, contact);
+        if (this.dying) return;
         console.debug(`Slime collided with ${other.owner.name} on ${side}`);
 
         // Check if the slime is attacked
         if (other.owner.name === "attack") {
-            this.kill();
+            // Stop moving & attacking
+            this.dying = true;
+            this.attacking = false;
+            this.actions.clearActions();
+
+            // Prevent further collisions
+            this.body.collisionType = CollisionType.PreventCollision;
+
+            // Die animation
+            this.graphics.use("dies");
+
+            // Play the die sound
+            void Resources.music.SlimeDies.play(Configs.Volume);
         }
     }
 
     private startAttackAnimation() {
+        // Set slime attacking state
         this.attacking = true;
 
-        console.log("Attack!");
+        // Set the attack animation
         (this.graphics.getGraphic(`attack.${this.direction}`) as Animation).reset();
         this.graphics.use(`attack.${this.direction}`);
+
+        // Play the attack sound
+        this.actions
+            .delay(Configs.SlimeAttackAnimFrameDuration * 6)
+            .callMethod(() => void Resources.music.SlimeLanding.play(Configs.Volume));
     }
 
     private onAttackAnimationEnd() {
         this.attacking = false;
 
-        // Attack the target plant
-        console.log("Attack ended!");
+        // Attack the target Plant
+        // TODO
 
         // Attack again!
         this.actions
             .delay(Configs.SlimeAttackDelay)
             .callMethod(this.startAttackAnimation.bind(this));
+    }
+
+    private onDieAnimationEnd() {
+        this.kill();
     }
 }

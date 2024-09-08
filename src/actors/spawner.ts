@@ -3,6 +3,7 @@ import {Configs} from "../configs";
 import {Plant} from "./plant";
 import {Slime} from "./slime";
 import {rnd} from "../random";
+import {Resources} from "../assets/resources";
 
 export class Spawner extends Actor {
 
@@ -42,6 +43,9 @@ export class Spawner extends Actor {
         slime.pos.x = rnd.integer(0, this.width) - this.width / 2;
         slime.pos.y = rnd.integer(0, this.height) - this.height / 2;
         this.addChild(slime);
+
+        // Play spawn sound
+        // void Resources.music.SlimeSpawn.play(Configs.Volume);
 
         // Schedule next spawn
         this.actions

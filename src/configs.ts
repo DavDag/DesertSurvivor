@@ -1,6 +1,8 @@
 import {Color, Vector} from "excalibur";
 
 export const Configs = {
+    Volume: 0.5,
+
     WindowWidth: 800,
     WindowHeight: 600,
     //BackgroundColor: Color.fromHex("#D5A05D"),
@@ -26,6 +28,7 @@ export const Configs = {
     TileHeight: 16,
 
     PlayerAnimFrameDuration: 100,
+    PlayerStepSoundDelay: 350,
     PlayerAttackAnimFrameDuration: 100,
     PlayerSpeed: 75,
 
@@ -34,7 +37,9 @@ export const Configs = {
     SlimeSpeed: 25,
     SlimeAttackDelay: 2000,
 
-    PlantingZoneDebrisChance: 0.3,
+    IsleDebrisChance: 0.05,
+
+    PlantingZoneDebrisChance: 0.05,
     PlantingZoneInitialPlantCount: 5,
 
     SpawnerPositions: [
@@ -44,6 +49,6 @@ export const Configs = {
         new Vector(330, 330),
     ],
     SpawnerSpawnSize: 100,
-    SpawnerSpawnMinDelay: 5000,
+    SpawnerSpawnMinDelay: 1000,
     SpawnerSpawnMaxDelay: 10000,
 };

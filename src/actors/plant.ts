@@ -19,9 +19,9 @@ export class Plant extends Actor {
     onInitialize(engine: Engine) {
         super.onInitialize(engine);
 
-        // Set plant sprite
+        // Set Plant sprite
         const spriteSheet = SpriteSheet.fromImageSource({
-            image: Resources.image.plant,
+            image: Resources.image.Plant,
             grid: {
                 rows: 15,
                 columns: 14,
@@ -38,7 +38,7 @@ export class Plant extends Actor {
         this.graphics.add("seed.2", spriteSheet.getSprite(12, 3));
         this.graphics.use("seed.0");
 
-        // Set plant z-index
+        // Set Plant z-index
         this.z = Configs.PlantZIndex;
 
         this.graphics.onPreDraw = (ctx) => {

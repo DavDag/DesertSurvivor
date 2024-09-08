@@ -37,7 +37,7 @@ export class GameScene extends Scene {
 
         // Create sprite sheet
         this.spriteSheet = SpriteSheet.fromImageSource({
-            image: Resources.image.world,
+            image: Resources.image.World,
             grid: {
                 rows: 15,
                 columns: 14,
@@ -179,8 +179,14 @@ export class GameScene extends Scene {
 
         // Fill isle tile map (isle)
         for (let tile of this.isleTileMap.tiles) {
-            const sprite = this.spriteSheet.getSprite(9, 6);
-            tile.addGraphic(sprite);
+            // Random debris
+            if (rnd.next() < Configs.IsleDebrisChance) {
+                const sprite = this.spriteSheet.getSprite(rnd.pickOne(range(3, 10)), 4);
+                tile.addGraphic(sprite);
+            } else {
+                const sprite = this.spriteSheet.getSprite(9, 6);
+                tile.addGraphic(sprite);
+            }
         }
 
         // Fill planting zone (border)
@@ -284,7 +290,7 @@ export class GameScene extends Scene {
         }
         this.availablePlantingZone = rnd.shuffle(this.availablePlantingZone);
 
-        // Add starting plant
+        // Add starting Plant
         this.plants = new Array(Configs.PlantingZoneInitialPlantCount)
             .fill(0)
             .map(() => {
