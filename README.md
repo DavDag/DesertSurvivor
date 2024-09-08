@@ -1,11 +1,11 @@
-# TheFloorIsLava
+# Desert @MicroJam022
 
 <a href="">
   <img src="https://github.com/user-attachments/assets/259eb251-38ed-4a30-b65f-3e061338ab80" width="30px" alt="itch.io" />
 </a>
 
-<a href="">
-  <img src="https://scorespace.net/wp-content/uploads/2021/12/SS_LOGO_MAIN-mobile.png" width="50px" alt="scorespace.net" />
+<a href="https://www.microgamejam.com/">
+  <img src="https://lh5.googleusercontent.com/90Qi5WAPgFPOBNcxjW7-W7ZMW9zG6LeWxa2REJpVnJlOz6KBixn4B-VG6_KK7dVJtk2K-ntxdnwGi2s7ocp_eTs=w16383" width="30px" alt="microjam" />
 </a>
 
 <a href="">
@@ -13,7 +13,7 @@
 </a>
 <br>
 
-Submission to the _xyz_.
+Submission to the _MicroJam 022_.
 
 ## Gameplay
 

@@ -38,9 +38,15 @@ game.input.keyboard.on('down', (evt: any) => {
 game.input.pointers.primary.on('wheel', (evt: any) => {
     // Zoom in/out
     if (evt.deltaY > 0) {
-        game.currentScene.camera.zoom *= 0.9;
+        game.currentScene.camera.zoom = Math.max(
+            0.75,
+            game.currentScene.camera.zoom * 0.9
+        );
     } else {
-        game.currentScene.camera.zoom *= 1.1;
+        game.currentScene.camera.zoom = Math.min(
+            4.0,
+            game.currentScene.camera.zoom * 1.1
+        );
     }
 });
 
