@@ -1,4 +1,4 @@
-import {Color} from "excalibur";
+import {Color, Vector} from "excalibur";
 
 export const Configs = {
     WindowWidth: 800,
@@ -15,6 +15,7 @@ export const Configs = {
     PlantZIndex: -1,
     SlimeZIndex: 0,
     PlayerZIndex: 1,
+    SpawnerZIndex: 2,
 
     MapWidth: 150,
     MapHeight: 150,
@@ -35,4 +36,14 @@ export const Configs = {
 
     PlantingZoneDebrisChance: 0.3,
     PlantingZoneInitialPlantCount: 5,
+
+    SpawnerPositions: [
+        new Vector(70, 70),
+        new Vector(70, 330),
+        new Vector(330, 70),
+        new Vector(330, 330),
+    ],
+    SpawnerSpawnSize: 100,
+    SpawnerSpawnMinDelay: 5000,
+    SpawnerSpawnMaxDelay: 10000,
 };

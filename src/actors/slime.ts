@@ -151,7 +151,7 @@ export class Slime extends Actor {
 
         // Make slim move towards the target plant
         this.actions
-            .moveTo(this.targetPlant.pos, Configs.SlimeSpeed)
+            .moveTo(this.targetPlant.getGlobalPos(), Configs.SlimeSpeed)
             .callMethod(this.startAttackAnimation.bind(this));
 
         this.graphics.onPreDraw = (ctx) => {

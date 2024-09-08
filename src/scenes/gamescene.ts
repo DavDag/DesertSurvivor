@@ -15,6 +15,7 @@ import {Player} from "../actors/player";
 import {GameSceneUI} from "./gamesceneui";
 import {Plant} from "../actors/plant";
 import {Slime} from "../actors/slime";
+import {Spawner} from "../actors/spawner";
 
 export class GameScene extends Scene {
 
@@ -26,6 +27,7 @@ export class GameScene extends Scene {
     private player: Player;
     private plants: Plant[];
     private availablePlantingZone: Tile[];
+    private spawners: Spawner[];
 
     onInitialize(engine: Engine) {
         super.onInitialize(engine);
@@ -99,7 +101,10 @@ export class GameScene extends Scene {
         this.fillMap();
         this.fillPlantingZone();
 
-        this.add(new Slime(this.random.pickOne(this.plants)));
+        // Create spawners
+        this.spawners = Configs.SpawnerPositions.map((pos) => new Spawner(pos, this.plants));
+        this.spawners.forEach(this.add.bind(this));
+        this.spawners.forEach((spawner) => spawner.startSpawning());
     }
 
     private fillMap() {
