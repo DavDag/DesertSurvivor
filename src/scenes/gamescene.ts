@@ -1,21 +1,42 @@
-import {Actor, ElasticToActorStrategy, Engine, Graphic, Scene, SpriteSheet, Tile, TileMap, Vector} from "excalibur";
+import {
+    Actor,
+    ElasticToActorStrategy,
+    Engine,
+    Random,
+    randomInRange, range,
+    Scene,
+    SpriteSheet, Tile,
+    TileMap,
+    Vector
+} from "excalibur";
 import {Configs} from "../configs";
 import {Resources} from "../assets/resources";
-import {Player} from "./player";
+import {Player} from "../actors/player";
+import {GameSceneUI} from "./gamesceneui";
+import {Plant} from "../actors/plant";
+import {Slime} from "../actors/slime";
 
 export class GameScene extends Scene {
 
+    private random = new Random();
+    private gameSceneUI: GameSceneUI;
     private spriteSheet: SpriteSheet;
     private bgTileMap: TileMap;
     private isleTileMap: TileMap;
     private player: Player;
+    private plants: Plant[];
+    private availablePlantingZone: Tile[];
 
     onInitialize(engine: Engine) {
         super.onInitialize(engine);
 
+        // Create UI
+        this.gameSceneUI = new GameSceneUI();
+        this.add(this.gameSceneUI);
+
         // Create sprite sheet
         this.spriteSheet = SpriteSheet.fromImageSource({
-            image: Resources.image.worldTileMap,
+            image: Resources.image.world,
             grid: {
                 rows: 15,
                 columns: 14,
@@ -30,6 +51,7 @@ export class GameScene extends Scene {
 
         // Create background tile map
         this.bgTileMap = new TileMap({
+            name: "bgTileMap",
             columns: Configs.MapWidth,
             rows: Configs.MapHeight,
             tileWidth: Configs.TileWidth,
@@ -46,6 +68,7 @@ export class GameScene extends Scene {
 
         // Create isle tile map
         this.isleTileMap = new TileMap({
+            name: "isleTileMap",
             columns: Configs.IsleWidth,
             rows: Configs.IsleHeight,
             tileWidth: Configs.TileWidth,
@@ -74,6 +97,9 @@ export class GameScene extends Scene {
 
         // Fill tile maps
         this.fillMap();
+        this.fillPlantingZone();
+
+        this.add(new Slime(this.random.pickOne(this.plants)));
     }
 
     private fillMap() {
@@ -81,7 +107,7 @@ export class GameScene extends Scene {
         for (let tile of this.bgTileMap.tiles) {
             const sprite = this.spriteSheet
                 .getSprite(12, 10, {
-                    rotation: Math.floor(Math.random() * 4) * Math.PI / 2
+                    rotation: this.random.pickOne(range(0, 4)) * Math.PI / 2
                 });
             tile.addGraphic(sprite);
         }
@@ -152,5 +178,117 @@ export class GameScene extends Scene {
             const sprite = this.spriteSheet.getSprite(9, 6);
             tile.addGraphic(sprite);
         }
+
+        // Fill planting zone (border)
+        for (let x = 0; x < Configs.PlantingZoneSize; x++) {
+            // Set top tiles (isle <-> planting zone)
+            const topSprite = this.spriteSheet.getSprite(1, 0);
+            const topTile = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 + x - Configs.PlantingZoneSize / 2,
+                this.isleTileMap.rows / 2 - Configs.PlantingZoneSize / 2 - 1
+            );
+            topTile.clearGraphics();
+            topTile.addGraphic(topSprite);
+
+            // Set bottom tiles (planting zone <-> isle)
+            const botSprite = this.spriteSheet.getSprite(1, 2);
+            const botTile = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 + x - Configs.PlantingZoneSize / 2,
+                this.isleTileMap.rows / 2 + Configs.PlantingZoneSize / 2
+            );
+            botTile.clearGraphics();
+            botTile.addGraphic(botSprite);
+        }
+        for (let y = 0; y < Configs.PlantingZoneSize; y++) {
+            // Set left tiles (isle <-> planting zone)
+            const leftSprite = this.spriteSheet.getSprite(0, 1);
+            const leftTile = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 - Configs.PlantingZoneSize / 2 - 1,
+                this.isleTileMap.rows / 2 + y - Configs.PlantingZoneSize / 2
+            );
+            leftTile.clearGraphics();
+            leftTile.addGraphic(leftSprite);
+
+            // Set right tiles (planting zone <-> isle)
+            const rightSprite = this.spriteSheet.getSprite(2, 1);
+            const rightTile = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 + Configs.PlantingZoneSize / 2,
+                this.isleTileMap.rows / 2 + y - Configs.PlantingZoneSize / 2
+            );
+            rightTile.clearGraphics();
+            rightTile.addGraphic(rightSprite);
+        }
+        {
+            // Set corner tiles (top-left)
+            const cornerSpriteTL = this.spriteSheet.getSprite(0, 0);
+            const cornerTileTL = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 - Configs.PlantingZoneSize / 2 - 1,
+                this.isleTileMap.rows / 2 - Configs.PlantingZoneSize / 2 - 1
+            );
+            cornerTileTL.clearGraphics();
+            cornerTileTL.addGraphic(cornerSpriteTL);
+
+            // Set corner tiles (top-right)
+            const cornerSpriteTR = this.spriteSheet.getSprite(2, 0);
+            const cornerTileTR = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 + Configs.PlantingZoneSize / 2,
+                this.isleTileMap.rows / 2 - Configs.PlantingZoneSize / 2 - 1
+            );
+            cornerTileTR.clearGraphics();
+            cornerTileTR.addGraphic(cornerSpriteTR);
+
+            // Set corner tiles (bottom-left)
+            const cornerSpriteBL = this.spriteSheet.getSprite(0, 2);
+            const cornerTileBL = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 - Configs.PlantingZoneSize / 2 - 1,
+                this.isleTileMap.rows / 2 + Configs.PlantingZoneSize / 2
+            );
+            cornerTileBL.clearGraphics();
+            cornerTileBL.addGraphic(cornerSpriteBL);
+
+            // Set corner tiles (bottom-right)
+            const cornerSpriteBR = this.spriteSheet.getSprite(2, 2);
+            const cornerTileBR = this.isleTileMap.getTile(
+                this.isleTileMap.columns / 2 + Configs.PlantingZoneSize / 2,
+                this.isleTileMap.rows / 2 + Configs.PlantingZoneSize / 2
+            );
+            cornerTileBR.clearGraphics();
+            cornerTileBR.addGraphic(cornerSpriteBR);
+        }
+    }
+
+    private fillPlantingZone() {
+        // Fill planting zone (with debris)
+        this.availablePlantingZone = [];
+        for (let x = 0; x < Configs.PlantingZoneSize; x++) {
+            for (let y = 0; y < Configs.PlantingZoneSize; y++) {
+                const tile = this.isleTileMap.getTile(
+                    this.isleTileMap.columns / 2 + x - Configs.PlantingZoneSize / 2,
+                    this.isleTileMap.rows / 2 + y - Configs.PlantingZoneSize / 2
+                );
+
+                // Random debris
+                if (this.random.next() < Configs.PlantingZoneDebrisChance) {
+                    tile.clearGraphics();
+                    const sprite = this.spriteSheet.getSprite(this.random.pickOne(range(3, 10)), 4);
+                    tile.addGraphic(sprite);
+                }
+
+                // Add to available planting zone
+                this.availablePlantingZone.push(tile);
+            }
+        }
+        this.availablePlantingZone = this.random.shuffle(this.availablePlantingZone);
+
+        // Add starting plant
+        this.plants = new Array(Configs.PlantingZoneInitialPlantCount)
+            .fill(0)
+            .map(() => {
+                const tile = this.availablePlantingZone.pop();
+                tile.clearGraphics();
+                tile.addGraphic(this.spriteSheet.getSprite(10, 3));
+                return new Plant(tile);
+            });
+        this.plants.forEach(this.add.bind(this));
     }
 }

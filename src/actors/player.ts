@@ -1,12 +1,12 @@
 import {
     Actor,
     Animation,
-    AnimationStrategy,
+    AnimationStrategy, Collider, CollisionContact,
     CollisionType,
     Color,
     Engine,
     Keys,
-    range,
+    range, Side,
     SpriteSheet,
     Vector
 } from "excalibur";
@@ -15,13 +15,16 @@ import {Resources} from "../assets/resources";
 
 export class Player extends Actor {
 
+    private attacking = false;
+    private direction = "down";
+
     constructor() {
         super({
             name: "player",
             pos: Vector.Zero,
             width: Configs.TileWidth,
             height: Configs.TileHeight,
-            color: Color.Viridian,
+            color: Color.Violet,
             collisionType: CollisionType.Active
         });
     }
@@ -105,6 +108,38 @@ export class Player extends Actor {
             ],
             strategy: AnimationStrategy.Loop
         });
+        const attackAnimDown = Animation.fromSpriteSheet(
+            spriteSheet,
+            range(36, 39),
+            Configs.PlayerAttackAnimFrameDuration,
+            AnimationStrategy.Freeze
+        );
+        attackAnimDown.events.on("end", this.onAttackAnimationEnd.bind(this));
+        const attackAnimRight = Animation.fromSpriteSheet(
+            spriteSheet,
+            range(42, 45),
+            Configs.PlayerAttackAnimFrameDuration,
+            AnimationStrategy.Freeze
+        );
+        attackAnimRight.events.on("end", this.onAttackAnimationEnd.bind(this));
+        const attackAnimUp = Animation.fromSpriteSheet(
+            spriteSheet,
+            range(48, 51),
+            Configs.PlayerAttackAnimFrameDuration,
+            AnimationStrategy.Freeze
+        );
+        attackAnimUp.events.on("end", this.onAttackAnimationEnd.bind(this));
+        const attackAnimLeft = Animation.fromSpriteSheetCoordinates({
+            spriteSheet,
+            frameCoordinates: [
+                {x: 0, y: 7, duration: Configs.PlayerAttackAnimFrameDuration, options: {flipHorizontal: true}},
+                {x: 1, y: 7, duration: Configs.PlayerAttackAnimFrameDuration, options: {flipHorizontal: true}},
+                {x: 2, y: 7, duration: Configs.PlayerAttackAnimFrameDuration, options: {flipHorizontal: true}},
+                {x: 3, y: 7, duration: Configs.PlayerAttackAnimFrameDuration, options: {flipHorizontal: true}},
+            ],
+            strategy: AnimationStrategy.Freeze
+        });
+        attackAnimLeft.events.on("end", this.onAttackAnimationEnd.bind(this));
         this.graphics.add("idle.down", idleAnimDown);
         this.graphics.add("idle.right", idleAnimRight);
         this.graphics.add("idle.up", idleAnimUp);
@@ -113,6 +148,10 @@ export class Player extends Actor {
         this.graphics.add("run.right", runAnimRight);
         this.graphics.add("run.up", runAnimUp);
         this.graphics.add("run.left", runAnimLeft);
+        this.graphics.add("attack.down", attackAnimDown);
+        this.graphics.add("attack.right", attackAnimRight);
+        this.graphics.add("attack.up", attackAnimUp);
+        this.graphics.add("attack.left", attackAnimLeft);
         this.graphics.use("idle.down");
         this.offset = new Vector(0, -10);
 
@@ -123,7 +162,9 @@ export class Player extends Actor {
         this.z = Configs.PlayerZIndex;
 
         this.graphics.onPreDraw = (ctx) => {
-            ctx.drawCircle(Vector.Zero, 1, Color.Red);
+            if (engine.isDebug) {
+                ctx.drawCircle(Vector.Zero, 1, Color.Red);
+            }
         };
     }
 
@@ -132,27 +173,48 @@ export class Player extends Actor {
 
         // Move player
         this.vel = Vector.Zero;
-        if (engine.input.keyboard.isHeld(Keys.W) || engine.input.keyboard.isHeld(Keys.Up)) {
-            this.vel.y -= Configs.PlayerSpeed;
+        if (!this.attacking) {
+            if (engine.input.keyboard.isHeld(Keys.W) || engine.input.keyboard.isHeld(Keys.Up)) {
+                this.vel.y -= 1;
+                this.direction = "up";
+            }
+            if (engine.input.keyboard.isHeld(Keys.S) || engine.input.keyboard.isHeld(Keys.Down)) {
+                this.vel.y += 1;
+                this.direction = "down";
+            }
+            if (engine.input.keyboard.isHeld(Keys.A) || engine.input.keyboard.isHeld(Keys.Left)) {
+                this.vel.x -= 1;
+                this.direction = "left";
+            }
+            if (engine.input.keyboard.isHeld(Keys.D) || engine.input.keyboard.isHeld(Keys.Right)) {
+                this.vel.x += 1;
+                this.direction = "right";
+            }
+            if (this.vel.x !== 0 || this.vel.y !== 0) {
+                this.vel = this.vel.normalize().scale(Configs.PlayerSpeed);
+            }
         }
-        if (engine.input.keyboard.isHeld(Keys.S) || engine.input.keyboard.isHeld(Keys.Down)) {
-            this.vel.y += Configs.PlayerSpeed;
-        }
-        if (engine.input.keyboard.isHeld(Keys.A) || engine.input.keyboard.isHeld(Keys.Left)) {
-            this.vel.x -= Configs.PlayerSpeed;
-        }
-        if (engine.input.keyboard.isHeld(Keys.D) || engine.input.keyboard.isHeld(Keys.Right)) {
-            this.vel.x += Configs.PlayerSpeed;
+
+        // Attack
+        if (engine.input.keyboard.wasPressed(Keys.Space) && !this.attacking) {
+            this.attacking = true;
+            (this.graphics.getGraphic(`attack.${this.direction}`) as Animation).reset();
         }
 
         // Set animation
-        const direction =
-            (this.oldVel.x < 0) ? "left"
-                : (this.oldVel.x > 0) ? "right"
-                    : (this.oldVel.y < 0) ? "up"
-                        : (this.oldVel.y > 0) ? "down"
-                            : "down";
-        const anim = (this.vel.x === 0 && this.vel.y === 0) ? "idle" : "run";
-        this.graphics.use(`${anim}.${direction}`);
+        const anim =
+            (this.attacking) ? "attack"
+                : (this.vel.x === 0 && this.vel.y === 0) ? "idle"
+                    : "run";
+        this.graphics.use(`${anim}.${this.direction}`);
+    }
+
+    onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+        super.onCollisionStart(self, other, side, contact);
+        console.debug(`Player collided with ${other.owner.name} on ${side}`);
+    }
+
+    private onAttackAnimationEnd() {
+        this.attacking = false;
     }
 }

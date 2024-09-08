@@ -1,4 +1,4 @@
-import {DisplayMode, Engine, Keys, Loader} from "excalibur";
+import {Color, DisplayMode, Engine, Input, Keys, Loader} from "excalibur";
 import {Resources} from "./assets/resources";
 import {GameScene} from "./scenes/gamescene";
 import {Configs} from "./configs";
@@ -23,7 +23,7 @@ const game = new Engine({
 game.add("game", new GameScene());
 
 // Listen to global events
-game.input.keyboard.on('down', (evt: any) => {
+game.input.keyboard.on('down', (evt: Input.KeyEvent) => {
     // Escape to pause the game
     if (evt.key === Keys.Escape) {
         window["PauseGame"]();
@@ -35,18 +35,24 @@ game.input.keyboard.on('down', (evt: any) => {
     }
 });
 
-game.input.pointers.primary.on('wheel', (evt: any) => {
+game.input.pointers.primary.on('wheel', (evt: Input.WheelEvent) => {
     // Zoom in/out
     if (evt.deltaY > 0) {
         game.currentScene.camera.zoom = Math.max(
-            0.75,
+            Configs.CameraMinZoom,
             game.currentScene.camera.zoom * 0.9
         );
     } else {
         game.currentScene.camera.zoom = Math.min(
-            4.0,
+            Configs.CameraMaxZoom,
             game.currentScene.camera.zoom * 1.1
         );
+    }
+});
+
+game.input.pointers.primary.on('move', (evt: Input.PointerEvent) => {
+    if (game.isDebug) {
+        game.graphicsContext.drawCircle(evt.screenPos, 5, Color.Red);
     }
 });
 
