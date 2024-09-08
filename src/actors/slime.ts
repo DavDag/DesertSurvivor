@@ -1,7 +1,19 @@
-import {Actor, Animation, AnimationStrategy, CollisionType, Color, Engine, range, SpriteSheet, Vector} from "excalibur";
+import {
+    Actor,
+    Animation,
+    AnimationStrategy,
+    Collider, CollisionContact,
+    CollisionType,
+    Color,
+    Engine,
+    range, Side,
+    SpriteSheet,
+    Vector
+} from "excalibur";
 import {Configs} from "../configs";
 import {Resources} from "../assets/resources";
 import {Plant} from "./plant";
+import {Spawner} from "./spawner";
 
 export class Slime extends Actor {
 
@@ -151,7 +163,7 @@ export class Slime extends Actor {
 
         // Make slim move towards the target plant
         this.actions
-            .moveTo(this.targetPlant.getGlobalPos(), Configs.SlimeSpeed)
+            .moveTo(this.targetPlant.pos.sub((this.parent as Spawner).pos), Configs.SlimeSpeed)
             .callMethod(this.startAttackAnimation.bind(this));
 
         this.graphics.onPreDraw = (ctx) => {
@@ -175,6 +187,16 @@ export class Slime extends Actor {
                             : "up";
             const anim = (this.vel.x === 0 || this.vel.y === 0) ? "idle" : "run";
             this.graphics.use(`${anim}.${this.direction}`);
+        }
+    }
+
+    onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+        super.onCollisionStart(self, other, side, contact);
+        console.debug(`Slime collided with ${other.owner.name} on ${side}`);
+
+        // Check if the slime is attacked
+        if (other.owner.name === "attack") {
+            this.kill();
         }
     }
 

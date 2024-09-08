@@ -2,8 +2,7 @@ import {
     Actor,
     ElasticToActorStrategy,
     Engine,
-    Random,
-    randomInRange, range,
+    range,
     Scene,
     SpriteSheet, Tile,
     TileMap,
@@ -16,10 +15,10 @@ import {GameSceneUI} from "./gamesceneui";
 import {Plant} from "../actors/plant";
 import {Slime} from "../actors/slime";
 import {Spawner} from "../actors/spawner";
+import {rnd} from "../random";
 
 export class GameScene extends Scene {
 
-    private random = new Random();
     private gameSceneUI: GameSceneUI;
     private spriteSheet: SpriteSheet;
     private bgTileMap: TileMap;
@@ -112,7 +111,7 @@ export class GameScene extends Scene {
         for (let tile of this.bgTileMap.tiles) {
             const sprite = this.spriteSheet
                 .getSprite(12, 10, {
-                    rotation: this.random.pickOne(range(0, 4)) * Math.PI / 2
+                    rotation: rnd.pickOne(range(0, 4)) * Math.PI / 2
                 });
             tile.addGraphic(sprite);
         }
@@ -273,9 +272,9 @@ export class GameScene extends Scene {
                 );
 
                 // Random debris
-                if (this.random.next() < Configs.PlantingZoneDebrisChance) {
+                if (rnd.next() < Configs.PlantingZoneDebrisChance) {
                     tile.clearGraphics();
-                    const sprite = this.spriteSheet.getSprite(this.random.pickOne(range(3, 10)), 4);
+                    const sprite = this.spriteSheet.getSprite(rnd.pickOne(range(3, 10)), 4);
                     tile.addGraphic(sprite);
                 }
 
@@ -283,7 +282,7 @@ export class GameScene extends Scene {
                 this.availablePlantingZone.push(tile);
             }
         }
-        this.availablePlantingZone = this.random.shuffle(this.availablePlantingZone);
+        this.availablePlantingZone = rnd.shuffle(this.availablePlantingZone);
 
         // Add starting plant
         this.plants = new Array(Configs.PlantingZoneInitialPlantCount)

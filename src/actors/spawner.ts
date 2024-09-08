@@ -1,11 +1,10 @@
-import {Actor, Color, Engine, Random, Vector} from "excalibur";
+import {Actor, Color, Engine, Vector} from "excalibur";
 import {Configs} from "../configs";
 import {Plant} from "./plant";
 import {Slime} from "./slime";
+import {rnd} from "../random";
 
 export class Spawner extends Actor {
-
-    private rand = new Random();
 
     constructor(pos: Vector, private plants: Plant[]) {
         super({
@@ -13,7 +12,6 @@ export class Spawner extends Actor {
             pos: pos,
             width: Configs.SpawnerSpawnSize,
             height: Configs.SpawnerSpawnSize,
-            //color: Color.Violet
         });
     }
 
@@ -31,20 +29,23 @@ export class Spawner extends Actor {
     }
 
     public startSpawning() {
+        // Schedule first spawn
         this.actions
-            .delay(this.rand.integer(Configs.SpawnerSpawnMinDelay, Configs.SpawnerSpawnMaxDelay))
+            .delay(rnd.integer(Configs.SpawnerSpawnMinDelay, Configs.SpawnerSpawnMaxDelay))
             .callMethod(this.spawnSlime.bind(this));
     }
 
     private spawnSlime() {
-        const plant = this.rand.pickOne(this.plants);
+        // Spawn slime
+        const plant = rnd.pickOne(this.plants);
         const slime = new Slime(plant);
-        slime.pos.x = this.rand.integer(0, this.width);
-        slime.pos.y = this.rand.integer(0, this.height);
+        slime.pos.x = rnd.integer(0, this.width) - this.width / 2;
+        slime.pos.y = rnd.integer(0, this.height) - this.height / 2;
         this.addChild(slime);
 
+        // Schedule next spawn
         this.actions
-            .delay(this.rand.integer(Configs.SpawnerSpawnMinDelay, Configs.SpawnerSpawnMaxDelay))
+            .delay(rnd.integer(Configs.SpawnerSpawnMinDelay, Configs.SpawnerSpawnMaxDelay))
             .callMethod(this.spawnSlime.bind(this));
     }
 }

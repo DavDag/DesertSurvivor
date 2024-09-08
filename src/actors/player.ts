@@ -6,7 +6,7 @@ import {
     Color,
     Engine,
     Keys,
-    range, Side,
+    range, Shape, Side,
     SpriteSheet,
     Vector
 } from "excalibur";
@@ -17,6 +17,8 @@ export class Player extends Actor {
 
     private attacking = false;
     private direction = "down";
+
+    private attackActors: { [key: string]: Actor } = {};
 
     constructor() {
         super({
@@ -157,6 +159,35 @@ export class Player extends Actor {
 
         // Update collision box
         this.collider.useBoxCollider(12, 12);
+        this.attackActors["right"] = new Actor({
+            name: "attack",
+            pos: new Vector(10, 0),
+            width: 20,
+            height: 20,
+            collisionType: CollisionType.PreventCollision,
+        });
+        this.attackActors["left"] = new Actor({
+            name: "attack",
+            pos: new Vector(-10, 0),
+            width: 20,
+            height: 20,
+            collisionType: CollisionType.PreventCollision,
+        });
+        this.attackActors["up"]= new Actor({
+            name: "attack",
+            pos: new Vector(0, -10),
+            width: 20,
+            height: 20,
+            collisionType: CollisionType.PreventCollision,
+        });
+        this.attackActors["down"] = new Actor({
+            name: "attack",
+            pos: new Vector(0, 10),
+            width: 20,
+            height: 20,
+            collisionType: CollisionType.PreventCollision,
+        });
+        Object.values(this.attackActors).forEach(this.addChild.bind(this));
 
         // Set player z-index
         this.z = Configs.PlayerZIndex;
@@ -198,6 +229,7 @@ export class Player extends Actor {
         // Attack
         if (engine.input.keyboard.wasPressed(Keys.Space) && !this.attacking) {
             this.attacking = true;
+            this.attackActors[this.direction].body.collisionType = CollisionType.Passive;
             (this.graphics.getGraphic(`attack.${this.direction}`) as Animation).reset();
         }
 
@@ -216,5 +248,6 @@ export class Player extends Actor {
 
     private onAttackAnimationEnd() {
         this.attacking = false;
+        this.attackActors[this.direction].body.collisionType = CollisionType.PreventCollision;
     }
 }
