@@ -69,10 +69,11 @@ window["GameCompleted"] = (grown: number, dead: number) => {
     const endScene = game.scenes["end"] as EndScene;
     endScene.setGrownPlants(grown);
     endScene.setDeadPlants(dead);
-    void game.goToScene("end");
+    game.goToScene("end").then(() =>  game.remove("game"));
 };
 
 window["RestartGame"] = () => {
+    game.add("game", new GameScene());
     void game.goToScene("game");
 };
 

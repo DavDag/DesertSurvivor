@@ -242,12 +242,10 @@ export class Player extends Actor {
             if (this.vel.x !== 0 || this.vel.y !== 0) {
                 this.vel = this.vel.normalize().scale(Configs.PlayerSpeed);
                 if (!this.stepSoundTimer.isRunning) {
-                    console.debug('StepSoundTimer resumed');
                     this.stepSoundTimer.resume();
                 }
             } else {
                 if (this.stepSoundTimer.isRunning) {
-                    console.debug('StepSoundTimer paused');
                     this.stepSoundTimer.pause();
                 }
             }
@@ -259,7 +257,6 @@ export class Player extends Actor {
             this.attackActors[this.direction].body.collisionType = CollisionType.Passive;
             (this.graphics.getGraphic(`attack.${this.direction}`) as Animation).reset();
             void Resources.music.SwordSwing.play(Configs.Volume);
-            console.debug('StepSoundTimer paused');
             this.stepSoundTimer.pause();
         }
 
@@ -273,13 +270,11 @@ export class Player extends Actor {
 
     onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
         super.onCollisionStart(self, other, side, contact);
-        console.debug(`Player collided with ${other.owner.name} on ${side}`);
     }
 
     private onAttackAnimationEnd() {
         this.attacking = false;
         this.attackActors[this.direction].body.collisionType = CollisionType.PreventCollision;
-        console.debug('StepSoundTimer resumed');
         this.stepSoundTimer.resume();
     }
 }

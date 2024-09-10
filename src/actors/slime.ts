@@ -199,7 +199,6 @@ export class Slime extends Actor {
 
     onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
         if (this.dying) return;
-        console.debug(`Slime collided with ${other.owner.name} on ${side}`);
 
         // Check if the slime is attacked
         if (other.owner.name === "attack") {
@@ -246,6 +245,7 @@ export class Slime extends Actor {
     }
 
     private onDieAnimationEnd() {
+        this.actions.clearActions();
         this.kill();
     }
 }

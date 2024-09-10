@@ -82,15 +82,16 @@ export class Plant extends Actor {
         this.health--;
 
         // If health is zero, kill plant
-        if (this.health <= 0) {
-            // Remove from scene
-            this.kill();
-
+        if (this.health == 0) {
             // Play plant dies sound
             void Resources.music.PickUp.play(Configs.Volume);
 
             // Communicate it to GameScene
             this.scene.emit("plant-dies", this);
+
+            // Remove from scene
+            this.actions.clearActions();
+            this.kill();
         }
 
         // Change plant color
@@ -101,10 +102,7 @@ export class Plant extends Actor {
 
     private grow() {
         this.growthStage++;
-        if (this.growthStage > 2) {
-            // Remove from scene
-            this.kill();
-
+        if (this.growthStage == 3) {
             // Play plant dies sound
             void Resources.music.PickUp.play(Configs.Volume);
 
@@ -113,7 +111,12 @@ export class Plant extends Actor {
 
             // Stop growth
             this.growthTimer.stop();
+
+            // Remove from scene
+            this.actions.clearActions();
+            this.kill();
         } else {
+            // Change plant sprite
             this.graphics.use(`seed.${this.growthStage}`);
 
             // Change plant color

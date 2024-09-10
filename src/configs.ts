@@ -41,7 +41,7 @@ export const Configs = {
     PlantingZoneDebrisChance: 0.05,
     PlantingZoneInitialPlantCount: 10,
     PlantHealth: 3,
-    PlantGrowthTryInterval: 1000,
+    PlantGrowthTryInterval: 500,
     PlantGrowthChance: 0.01,
 
     SpawnerPositions: [
@@ -51,6 +51,6 @@ export const Configs = {
         new Vector(330, 330),
     ],
     SpawnerSpawnSize: 100,
-    SpawnerSpawnMinDelay: 1000,
-    SpawnerSpawnMaxDelay: 5000,
+    SpawnerSpawnMinDelay: 100,
+    SpawnerSpawnMaxDelay: 500,
 };
