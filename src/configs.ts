@@ -51,6 +51,6 @@ export const Configs = {
         new Vector(330, 330),
     ],
     SpawnerSpawnSize: 100,
-    SpawnerSpawnMinDelay: 100,
-    SpawnerSpawnMaxDelay: 500,
+    SpawnerSpawnMinDelay: 1000,
+    SpawnerSpawnMaxDelay: 5000,
 };
