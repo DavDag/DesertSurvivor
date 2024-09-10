@@ -1,4 +1,4 @@
-# Desert @MicroJam022
+# DesertSurvivor
 
 <a href="https://daviderisaliti.itch.io/desertsurvivor">
   <img src="https://github.com/user-attachments/assets/259eb251-38ed-4a30-b65f-3e061338ab80" width="30px" alt="itch.io" />
